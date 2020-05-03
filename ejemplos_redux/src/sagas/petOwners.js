@@ -11,6 +11,7 @@ import {
 import * as selectors from '../reducers';
 import * as actions from '../actions/petOwners';
 import * as types from '../types/petOwners';
+import * as tl_types from '../types/trafficLights';
 
 
 const API_BASE_URL = 'http://localhost:8000/api/v1';
@@ -22,12 +23,13 @@ function* fetchPetOwners(action) {
 
         if (isAuth) {
             const token = yield select(selectors.getAuthToken);
+            console.log(isAuth)
 
             const response = yield call(
                 fetch,
                 `${API_BASE_URL}/owners/`, {
                     method: 'GET',
-                    body: JSON.stringify({}),
+                    body: JSON.stringify(),
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `JWT ${token}`,
@@ -35,16 +37,15 @@ function* fetchPetOwners(action) {
                 }
             );
 
-            // switch (response.status) {
-            //     case 200:
-            //         {
-            //             yield put(actions.completeFetchingPetOwners(entities, order));
-            //         }
-            //     default:
-            //         {
-            //             const { non_field_errors } = yield response.json();
-            //             yield put(actions.failFetchingPetOwners(non_field_errors[0]));
-            //         }
+            console.log("RESPONSE: ", response.json())
+
+
+            // if (response.status >= 299 && response.status <= 200) {
+            //     // yield put(actions.completeFetchingPetOwners(entities, order));
+
+            // } else {
+            //     const { non_field_errors } = yield response.json();
+            //     yield put(actions.failFetchingPetOwners(non_field_errors[0]));
             // }
         }
     } catch (error) {
@@ -71,16 +72,12 @@ function* addPetOwner(action) {
                 }
             );
 
-            switch (response.status) {
-                case 200:
-                    {
-                        yield put(actions.completeAddingPetOwner(action.payload.id, action.payload));
-                    }
-                default:
-                    {
-                        const { non_field_errors } = yield response.json();
-                        yield put(actions.failRemovingPetOwner(action.payload.id, non_field_errors[0]));
-                    }
+            if (response.status >= 299 && response.status <= 200) {
+                yield put(actions.completeAddingPetOwner(action.payload.id, action.payload));
+
+            } else {
+                const { non_field_errors } = yield response.json();
+                yield put(actions.failRemovingPetOwner(action.payload.id, non_field_errors[0]));
             }
         }
     } catch (error) {
@@ -100,7 +97,7 @@ function* removePetOwner(action) {
                 fetch,
                 `${API_BASE_URL}/owners/${petOwnerId}/`, {
                     method: 'DELETE',
-                    body: JSON.stringify({}),
+                    body: JSON.stringify(),
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `JWT ${token}`,
@@ -110,17 +107,14 @@ function* removePetOwner(action) {
 
             console.log(response)
 
-            switch (response.status) {
-                case 200:
-                    {
-                        yield put(actions.completeRemovingPetOwner());
-                    }
-                default:
-                    {
-                        const { non_field_errors } = yield response.json();
-                        yield put(actions.failRemovingPetOwner(petOwnerId, non_field_errors[0]));
-                    }
+            if (response.status >= 299 && response.status <= 200) {
+                yield put(actions.completeRemovingPetOwner());
+
+            } else {
+                const { non_field_errors } = yield response.json();
+                yield put(actions.failRemovingPetOwner(petOwnerId, non_field_errors[0]));
             }
+
         }
     } catch (error) {
         // yield put(actions.failLogin('Falló horrible la conexión mano'));
@@ -129,7 +123,7 @@ function* removePetOwner(action) {
 
 export function* watchFetchPetOwnersStarted() {
     yield takeEvery(
-        types.PET_OWNERS_FETCH_STARTED,
+        tl_types.PET_OWNERS_FETCH_STARTED,
         fetchPetOwners,
     );
 }
