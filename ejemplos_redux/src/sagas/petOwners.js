@@ -123,7 +123,7 @@ function* removePetOwner(action) {
 
 export function* watchFetchPetOwnersStarted() {
     yield takeEvery(
-        tl_types.PET_OWNERS_FETCH_STARTED,
+        tl_types.TRAFFIC_LIGHT_ADDED,
         fetchPetOwners,
     );
 }
